@@ -13,6 +13,12 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
+/**
+ * Job-card response for a saved job, including when the current user saved it.
+ *
+ * <p>The job fields reuse the existing {@link JobResponse} mapping to keep normal and saved job
+ * cards consistent.
+ */
 public class SavedJobResponse {
   private Long id;
   private String title;
@@ -36,6 +42,7 @@ public class SavedJobResponse {
   private LocalDateTime savedAt;
 
   public static SavedJobResponse from(SavedJob savedJob) {
+    // Reuse the standard job response so clients receive the same job-card fields in both APIs.
     JobResponse job = JobResponse.from(savedJob.getJob());
     return new SavedJobResponse(
         job.getId(),

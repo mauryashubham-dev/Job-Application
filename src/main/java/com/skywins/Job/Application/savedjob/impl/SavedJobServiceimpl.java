@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+/** Implements saved-job business rules and database operations. */
 public class SavedJobServiceimpl implements SavedJobService {
   private final SavedJobRepository savedJobRepository;
   private final JobRepository jobRepository;
@@ -40,6 +41,7 @@ public class SavedJobServiceimpl implements SavedJobService {
   @Override
   @Transactional
   public boolean saveJob(Long userId, Long jobId) {
+    // A repeat save request is successful without adding a duplicate row.
     if (savedJobRepository.existsByUserIdAndJobId(userId, jobId)) {
       return true;
     }
@@ -53,6 +55,7 @@ public class SavedJobServiceimpl implements SavedJobService {
             .findById(jobId)
             .orElseThrow(() -> new EntityNotFoundException("Job not found"));
 
+    // Both related records must exist before the saved-job association is created.
     SavedJob savedJob = SavedJob.builder().user(user).job(job).build();
     savedJobRepository.save(savedJob);
     return true;
@@ -61,6 +64,7 @@ public class SavedJobServiceimpl implements SavedJobService {
   @Override
   @Transactional
   public boolean deleteSavedJob(Long userId, Long jobId) {
+    // Delete is idempotent: deleting an absent association still leaves it unsaved.
     savedJobRepository.deleteByUserIdAndJobId(userId, jobId);
     return false;
   }

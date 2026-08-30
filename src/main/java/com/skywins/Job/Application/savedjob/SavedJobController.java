@@ -12,6 +12,11 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("api")
+/**
+ * Exposes saved-job operations for the authenticated user.
+ *
+ * <p>The user id comes from the JWT filter request attribute; clients must not send a user id.
+ */
 public class SavedJobController {
   private final SavedJobService savedJobService;
 
@@ -20,6 +25,7 @@ public class SavedJobController {
   }
 
   @GetMapping("/saved-jobs")
+  /** Returns the full job-card data for jobs saved by the current user. */
   public ResponseEntity<ApiResponse<List<SavedJobResponse>>> findSavedJobs(
       HttpServletRequest request) {
     Long userId = getUserId(request);
@@ -29,6 +35,7 @@ public class SavedJobController {
   }
 
   @GetMapping("/saved-jobs/ids")
+  /** Returns only saved job ids so listing screens can efficiently mark saved jobs. */
   public ResponseEntity<ApiResponse<List<Long>>> findSavedJobIds(HttpServletRequest request) {
     Long userId = getUserId(request);
     List<Long> savedJobIds = savedJobService.findSavedJobIdsByUser(userId);
@@ -36,6 +43,7 @@ public class SavedJobController {
   }
 
   @PostMapping("/saved-jobs/{jobId}")
+  /** Saves a job for the current user. Repeating the same request is safe and returns saved=true. */
   public ResponseEntity<?> saveJob(@PathVariable Long jobId, HttpServletRequest request) {
     try {
       Long userId = getUserId(request);
@@ -47,6 +55,7 @@ public class SavedJobController {
   }
 
   @DeleteMapping("/saved-jobs/{jobId}")
+  /** Removes a saved job when present. Repeating the request returns saved=false. */
   public ResponseEntity<ApiResponse<SavedJobStatusResponse>> deleteSavedJob(
       @PathVariable Long jobId, HttpServletRequest request) {
     Long userId = getUserId(request);
@@ -55,6 +64,7 @@ public class SavedJobController {
   }
 
   private Long getUserId(HttpServletRequest request) {
+    // JwtFilter populates this attribute after validating the bearer token.
     return (Long) request.getAttribute("userId");
   }
 }

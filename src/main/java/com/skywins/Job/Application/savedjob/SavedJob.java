@@ -24,6 +24,11 @@ import lombok.ToString;
 @ToString(exclude = {"user", "job"})
 @EqualsAndHashCode(exclude = {"user", "job"})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+/**
+ * Represents one job saved by one user.
+ *
+ * <p>The database constraint prevents the same user from saving the same job more than once.
+ */
 public class SavedJob {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,6 +47,7 @@ public class SavedJob {
 
   @PrePersist
   public void prePersist() {
+    // Set the save timestamp when the association is first persisted.
     if (createdAt == null) {
       createdAt = LocalDateTime.now();
     }
